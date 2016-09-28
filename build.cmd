@@ -1,7 +1,12 @@
 @echo Off
 set config=%1
+set skipTest=%2
 if "%config%" == "" (
    set config=Debug
+)
+
+if "%skipTest%" == "" (
+   set skipTest=false
 )
 
 set version=
@@ -31,14 +36,15 @@ IF %ERRORLEVEL% NEQ 0 goto error
 
 
 REM Test
-call :ExecuteCmd tools\nuget.exe install xunit.runner.console -Version 2.1.0 -OutputDirectory packages
-call :ExecuteCmd packages\xunit.runner.console.2.1.0\tools\xunit.console.exe test\NuGet.Server.Core.Tests\bin\%config%\NuGet.Server.Core.Tests.dll
-IF %ERRORLEVEL% NEQ 0 goto error
-call :ExecuteCmd packages\xunit.runner.console.2.1.0\tools\xunit.console.exe test\NuGet.Server.Tests\bin\%config%\NuGet.Server.Tests.dll
-IF %ERRORLEVEL% NEQ 0 goto error
-call :ExecuteCmd packages\xunit.runner.console.2.1.0\tools\xunit.console.exe test\NuGet.Server.V2.Tests\bin\%config%\NuGet.Server.V2.Tests.dll
-IF %ERRORLEVEL% NEQ 0 goto error
-
+if NOT "%skipTest%" == "true" (
+  call :ExecuteCmd tools\nuget.exe install xunit.runner.console -Version 2.1.0 -OutputDirectory packages
+  call :ExecuteCmd packages\xunit.runner.console.2.1.0\tools\xunit.console.exe test\NuGet.Server.Core.Tests\bin\%config%\NuGet.Server.Core.Tests.dll
+  IF %ERRORLEVEL% NEQ 0 goto error
+  call :ExecuteCmd packages\xunit.runner.console.2.1.0\tools\xunit.console.exe test\NuGet.Server.Tests\bin\%config%\NuGet.Server.Tests.dll
+  IF %ERRORLEVEL% NEQ 0 goto error
+  call :ExecuteCmd packages\xunit.runner.console.2.1.0\tools\xunit.console.exe test\NuGet.Server.V2.Tests\bin\%config%\NuGet.Server.V2.Tests.dll
+  IF %ERRORLEVEL% NEQ 0 goto error
+)
 
 REM Package
 mkdir artifacts
